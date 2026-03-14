@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Verification | Project f0rsakeN</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid #333;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .loader {
+            border: 3px solid #333;
+            border-top: 3px solid #ff4d4d;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 { font-size: 20px; margin-bottom: 10px; color: #ff4d4d; text-transform: uppercase; letter-spacing: 1px; }
+        p { color: #aaaaaa; font-size: 14px; line-height: 1.5; }
+        .error-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .error-btn:hover { background-color: #cc0000; }
+    </style>
+</head>
+<body>
+
+    <div id="status-box" class="container">
+        <div class="loader"></div>
+        <h1>Verifying Access</h1>
+        <p>Checking if you completed the Linkvertise steps...</p>
+    </div>
+
+    <script>
+        // --- TVOJI PODACI ---
+        const finalDestination = "https://work.ink/2mrY/f0rsakeN's-key-system";
+        const firstLinkInChain = "https://link-center.net/4139494/fSNAbamKOf1O";
+        const allowedDomains = ["linkvertise.com", "link-hub.net", "link-center.net", "direct-link.net", "link-to.net"];
+        
+        // Anti-Bypass Token (koristit će se za napredniju validaciju ako dodaš backend)
+        const antiBypassToken = "4b59bd10b2b5c2b25c4bfcbeeb70bb9b226d9b68a28c9192e1963951573d8e6e";
+
+        setTimeout(function() {
+            const referrer = document.referrer.toLowerCase();
+            const statusBox = document.getElementById("status-box");
+
+            // Provjera referrera
+            let isLegit = false;
+            for (let domain of allowedDomains) {
+                if (referrer.includes(domain)) {
+                    isLegit = true;
+                    break;
+                }
+            }
+
+            if (isLegit) {
+                // USPJEŠNO: Korisnik ide na Work.ink
+                window.location.href = finalDestination;
+            } else {
+                // POGREŠKA: Direktan pristup ili bypasser
+                statusBox.innerHTML = `
+                    <h1>Access Denied</h1>
+                    <p>Security check failed. You tried to access this link directly or used a bypasser.</p>
+                    <a href="${firstLinkInChain}" class="error-btn">Restart from Step 1</a>
+                `;
+            }
+        }, 2000); // 2 sekunde čekanja da sustav "provjeri"
+    </script>
+</body>
+</html>
