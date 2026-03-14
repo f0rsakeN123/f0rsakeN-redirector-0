@@ -3,14 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Verification | Project f0rsakeN</title>
+    <title>Verification | Project f0rsakeN</title>
     <style>
-        body { background-color: #0f0f0f; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: #1a1a1a; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); border: 1px solid #333; text-align: center; max-width: 400px; }
-        .loader { border: 3px solid #333; border-top: 3px solid #ff4d4d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        h1 { font-size: 20px; color: #ff4d4d; text-transform: uppercase; }
-        .error-btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #ff4d4d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        body {
+            background-color: #0c0c0c;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: #151515;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.1);
+            border: 1px solid #222;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+        }
+        .loader {
+            border: 3px solid #222;
+            border-top: 3px solid #ff4d4d;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            font-size: 22px;
+            color: #ff4d4d;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #888;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 25px;
+            background-color: #ff4d4d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: 0.3s ease;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+        .btn:hover {
+            background-color: #cc0000;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.4);
+        }
+        #manual-link { display: none; }
     </style>
 
     <script>
@@ -23,8 +81,7 @@
         document.head.appendChild(script);
       }
       loadScript("https://cdn.work.ink/js/workink-sitescript.js", function() {
-        // Ovaj dio aktivira work.ink zaštitu
-        workink("https://work.ink/2mrY/f0rsaken-redirector", ["https://f0rsaken123.github.io/f0rsakeN-redirector-0/"], []);
+        workink("https://work.ink/2mrY/f0rsakeN's-key-system", ["https://f0rsaken123.github.io/f0rsakeN-redirector-0/"], []);
       });
     })();
     </script>
@@ -34,39 +91,42 @@
     <div id="status-box" class="container">
         <div class="loader"></div>
         <h1>Verifying Access</h1>
-        <p>Please wait, verifying your Linkvertise completion through Work.ink API...</p>
-        <div id="manual-link" style="margin-top: 20px; display: none;">
-            <p>If you aren't redirected, click below:</p>
-            <a href="https://work.ink/2mrY/f0rsaken-redirector" class="error-btn">Go to Key System</a>
+        <p>Please wait, synchronizing with Work.ink Key System...</p>
+        
+        <div id="manual-link">
+            <p>Verification complete. If you are not redirected automatically, click the button below:</p>
+            <a href="https://work.ink/2mrY/f0rsakeN's-key-system" class="btn">Get Your Key</a>
         </div>
     </div>
 
     <script>
-        // Provjera referrera i automatski redirect
-        const allowedDomains = ["linkvertise.com", "link-hub.net", "link-center.net", "direct-link.net", "link-to.net"];
-        const firstLink = "https://link-center.net/4139494/fSNAbamKOf1O";
+        const targetKeyLink = "https://work.ink/2mrY/f0rsakeN's-key-system";
+        const restartLink = "https://link-center.net/4139494/fSNAbamKOf1O";
+        const allowedSources = ["linkvertise.com", "link-hub.net", "link-center.net", "direct-link.net", "link-to.net"];
 
         setTimeout(function() {
-            const referrer = document.referrer.toLowerCase();
-            let isLegit = false;
-            
-            for (let domain of allowedDomains) {
-                if (referrer.includes(domain)) { isLegit = true; break; }
+            const ref = document.referrer.toLowerCase();
+            const statusBox = document.getElementById("status-box");
+            let isVerified = false;
+
+            for (let domain of allowedSources) {
+                if (ref.includes(domain)) {
+                    isVerified = true;
+                    break;
+                }
             }
 
-            if (isLegit) {
-                // Pokaži link za svaki slučaj ako Work.ink skripta ne odradi redirect odmah
+            if (isVerified) {
                 document.getElementById("manual-link").style.display = "block";
-                // Automatski šaljemo na work.ink
-                window.location.href = "https://work.ink/2mrY/f0rsaken-redirector";
+                window.location.href = targetKeyLink;
             } else {
-                document.getElementById("status-box").innerHTML = `
+                statusBox.innerHTML = `
                     <h1>Access Denied</h1>
-                    <p>Referrer check failed. Please go through Linkvertise.</p>
-                    <a href="${firstLink}" class="error-btn">Restart from Step 1</a>
+                    <p>Security check failed. You must complete all Linkvertise steps to generate a key.</p>
+                    <a href="${restartLink}" class="btn">Restart from Step 1</a>
                 `;
             }
-        }, 2500);
+        }, 3000);
     </script>
 </body>
 </html>
