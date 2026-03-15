@@ -2,61 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>f0rsakeN | Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>f0rsakeN | Verification System</title>
+    
     <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
     <script>linkvertise(4139494, {whitelist: [""], blacklist: []});</script>
+    
     <style>
-        body { background: #0a0a0a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        .loader { border: 4px solid #333; border-top: 4px solid #ff4d4d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
+        body { 
+            background: #0a0a0a; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            text-align: center; 
+        }
+        .container {
+            background: #151515;
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+        }
+        .loader { 
+            border: 5px solid #222; 
+            border-top: 5px solid #ff4d4d; 
+            border-radius: 50%; 
+            width: 60px; 
+            height: 60px; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto 20px; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-box { background: #151515; padding: 30px; border-radius: 12px; border: 1px solid #ff4d4d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .btn { display: inline-block; padding: 12px 24px; background: #ff4d4d; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; transition: 0.2s; }
-        .btn:hover { background: #ff6666; transform: scale(1.05); }
+        .error-box { border: 1px solid #ff4d4d; padding: 20px; border-radius: 8px; }
+        .btn { 
+            display: inline-block; 
+            padding: 14px 28px; 
+            background: #ff4d4d; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            margin-top: 25px; 
+            transition: 0.3s; 
+        }
+        .btn:hover { background: #ff2a2a; transform: translateY(-2px); }
+        #status-text { color: #888; font-size: 0.9em; }
     </style>
 </head>
 <body>
-    <div id="content"><div class="loader"></div><p id="status-text">Verifying session...</p></div>
+    <div class="container" id="content">
+        <div class="loader"></div>
+        <h2 style="margin-bottom: 10px;">Security Check</h2>
+        <p id="status-text">Synchronizing with secure server...</p>
+    </div>
 
     <script>
-        // 1. Capture params IMMEDIATELY before browser can even render much
+        // 1. INSTANTLY capture the 'step' parameter from the long URL
         const urlParams = new URLSearchParams(window.location.search);
         const userKey = urlParams.get('step');
         
-        // 2. Wipe URL bar instantly to hide the secret key
+        // 2. IMMEDIATELY wipe the URL bar to hide the key from users and bypassers
         if (window.location.search.length > 0) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
+        // Tvoj novi Deployment ID je integriran u URL
         const googleUrl = "https://script.google.com/macros/s/AKfycbyNEp8Tr7cvNlVBD7wwl7buPRoZTSJWL81eskcT1rrj2kktjQzIHj6oic_pK1y4fkTG/exec";
         const secretKey = "f0rsaken_final_v1";
 
         async function verifyAndRedirect() {
+            // Provjera ključa prije slanja zahtjeva
             if (userKey !== secretKey) {
-                document.getElementById('content').innerHTML = `
-                    <div class="error-box">
-                        <h1 style="color:#ff4d4d">ACCESS DENIED</h1>
-                        <p>Direct access is restricted. Please follow the official link chain.</p>
-                        <a href="https://link-center.net/4139494/fSNAbamKOf1O" class="btn">RESTART PROCESS</a>
-                    </div>
-                `;
+                showError("ACCESS DENIED", "Please complete the required steps in the link chain.");
                 return;
             }
 
             try {
-                // Fetch with priority to speed up the process
+                // Pozivamo Google skriptu
                 const response = await fetch(googleUrl + "?step=" + userKey, { priority: "high" });
                 const data = await response.json();
 
-                if (data.response && data.response.url) {
-                    window.location.replace(data.response.url);
+                // ISPRAVAK prema dokumentaciji sa slike image_6ce1e2.png:
+                // Work.ink API vraća "url" u korijenu objekta
+                if (data && data.url) {
+                    document.getElementById('status-text').innerText = "Redirecting to secured link...";
+                    window.location.replace(data.url);
                 } else {
-                    document.getElementById('status-text').innerText = "API Error: Could not generate link.";
+                    console.error("Payload error:", data);
+                    showError("API ERROR", "Work.ink failed to generate a session. Please retry.");
                 }
             } catch (err) {
-                document.getElementById('status-text').innerText = "Connection failed. Please refresh.";
+                console.error("System error:", err);
+                showError("CONNECTION FAILED", "Our servers are currently busy. Refresh the page.");
             }
         }
 
+        function showError(title, message) {
+            document.getElementById('content').innerHTML = `
+                <div class="error-box">
+                    <h1 style="color:#ff4d4d; margin-top:0;">${title}</h1>
+                    <p>${message}</p>
+                    <a href="https://link-center.net/4139494/fSNAbamKOf1O" class="btn">RESTART PROCESS</a>
+                </div>
+            `;
+        }
+
+        // Pokretanje procesa
         verifyAndRedirect();
     </script>
 </body>
