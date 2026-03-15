@@ -15,21 +15,27 @@
     </style>
 </head>
 <body>
-    <div id="content"><div class="loader"></div><p>Verifying session...</p></div>
+    <div id="content"><div class="loader"></div><p id="status-text">Verifying session...</p></div>
 
     <script>
+        // 1. INSTANTLY capture params and wipe URL from the browser bar
+        const urlParams = new URLSearchParams(window.location.search);
+        const userKey = urlParams.get('step');
+        
+        if (window.location.search.length > 0) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         const googleUrl = "https://script.google.com/macros/s/AKfycbyNEp8Tr7cvNlVBD7wwl7buPRoZTSJWL81eskcT1rrj2kktjQzIHj6oic_pK1y4fkTG/exec";
         const secretKey = "f0rsaken_final_v1";
 
         async function verifyAndRedirect() {
-            const params = new URLSearchParams(window.location.search);
-            const userKey = params.get('step');
-
+            // 2. Check the captured key
             if (userKey !== secretKey) {
                 document.getElementById('content').innerHTML = `
                     <div class="error-box">
                         <h1 style="color:#ff4d4d">ACCESS DENIED</h1>
-                        <p>Please complete the required steps to continue.</p>
+                        <p>Direct access is restricted. Please follow the official link chain.</p>
                         <a href="https://link-center.net/4139494/fSNAbamKOf1O" class="btn">RESTART PROCESS</a>
                     </div>
                 `;
@@ -37,19 +43,21 @@
             }
 
             try {
+                // 3. Requesting the Work.ink link from your Google Script
                 const response = await fetch(googleUrl + "?step=" + userKey);
                 const data = await response.json();
 
                 if (data.response && data.response.url) {
                     window.location.replace(data.response.url);
                 } else {
-                    document.getElementById('content').innerHTML = "<h1>Verification failed.</h1>";
+                    document.getElementById('status-text').innerText = "API Error: Could not generate link.";
                 }
             } catch (err) {
-                document.getElementById('content').innerHTML = "<h1>System offline.</h1>";
+                document.getElementById('status-text').innerText = "Connection failed. Please refresh.";
             }
         }
 
+        // Run the process
         verifyAndRedirect();
     </script>
 </body>
