@@ -5,23 +5,24 @@
     <title>f0rsakeN | Verification</title>
     <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
     <script>linkvertise(4139494, {whitelist: [""], blacklist: []});</script>
-    
     <style>
         body { background: #0a0a0a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
         .loader { border: 4px solid #333; border-top: 4px solid #ff4d4d; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-box { background: #151515; padding: 30px; border-radius: 12px; border: 1px solid #ff4d4d; }
-        .btn { display: inline-block; padding: 12px 24px; background: #ff4d4d; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+        .error-box { background: #151515; padding: 30px; border-radius: 12px; border: 1px solid #ff4d4d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .btn { display: inline-block; padding: 12px 24px; background: #ff4d4d; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; transition: 0.2s; }
+        .btn:hover { background: #ff6666; transform: scale(1.05); }
     </style>
 </head>
 <body>
     <div id="content"><div class="loader"></div><p id="status-text">Verifying session...</p></div>
 
     <script>
-        // 1. INSTANTLY capture params and wipe URL from the browser bar
+        // 1. Capture params IMMEDIATELY before browser can even render much
         const urlParams = new URLSearchParams(window.location.search);
         const userKey = urlParams.get('step');
         
+        // 2. Wipe URL bar instantly to hide the secret key
         if (window.location.search.length > 0) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
@@ -30,7 +31,6 @@
         const secretKey = "f0rsaken_final_v1";
 
         async function verifyAndRedirect() {
-            // 2. Check the captured key
             if (userKey !== secretKey) {
                 document.getElementById('content').innerHTML = `
                     <div class="error-box">
@@ -43,8 +43,8 @@
             }
 
             try {
-                // 3. Requesting the Work.ink link from your Google Script
-                const response = await fetch(googleUrl + "?step=" + userKey);
+                // Fetch with priority to speed up the process
+                const response = await fetch(googleUrl + "?step=" + userKey, { priority: "high" });
                 const data = await response.json();
 
                 if (data.response && data.response.url) {
@@ -57,7 +57,6 @@
             }
         }
 
-        // Run the process
         verifyAndRedirect();
     </script>
 </body>
