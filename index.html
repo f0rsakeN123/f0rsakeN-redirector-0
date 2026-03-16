@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>f0rsakeN | Secure Handshake</title>
     <style>
-        body { background: #0a0a0a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        .box { background: #111; padding: 40px; border-radius: 15px; border: 1px solid #333; max-width: 400px; }
-        .btn { background: #ff4d4d; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 20px; font-weight: bold; }
+        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
+        .box { background: #111; padding: 40px; border-radius: 15px; border: 1px solid #333; max-width: 400px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .btn { background: #ff4d4d; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 20px; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background: #e64040; transform: translateY(-2px); }
         #loader { border: 4px solid #222; border-top: 4px solid #ff4d4d; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .key-display { background: #1a1a1a; padding: 15px; border: 1px dashed #4dff4d; color: #4dff4d; font-family: monospace; margin: 20px 0; font-size: 1.1em; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -42,7 +45,9 @@
 
             let progress = JSON.parse(localStorage.getItem('f0s_chain') || '{"step": 0, "time": 0}');
 
-            if (now - progress.time > 600000) progress = {step: 0, time: 0};
+            if (now - progress.time > 600000) {
+                progress = {step: 0, time: 0};
+            }
 
             const currentRequired = STEPS[progress.step];
 
@@ -51,30 +56,36 @@
                 localStorage.setItem('f0s_chain', JSON.stringify({step: nextStep, time: now}));
 
                 if (nextStep < STEPS.length) {
-                    document.getElementById('msg').innerText = `Step ${nextStep} Verified. Loading next...`;
-                    setTimeout(() => window.location.replace(LINKS[nextStep]), 1000);
+                    document.getElementById('msg').innerHTML = `Step ${nextStep} Verified.<br><span style="color:#888; font-size:0.8em;">Preparing next stage (3s)...</span>`;
+                    
+                    setTimeout(() => {
+                        window.location.href = LINKS[nextStep];
+                    }, 3000);
                 } else {
                     generateFinalKey();
                 }
             } else {
-                showError("BYPASS DETECTED", "You skipped a step or the session expired.");
+                showError("BYPASS DETECTED", "You skipped a step or your session expired.");
             }
         }
 
         async function generateFinalKey() {
-            document.getElementById('msg').innerText = "All steps verified! Generating your key...";
+            document.getElementById('msg').innerText = "All steps verified! Fetching your unique key...";
             try {
                 const res = await fetch(GOOGLE_URL + "?type=generate");
                 const data = await res.json();
+                
                 localStorage.removeItem('f0s_chain');
                 
                 document.getElementById('app').innerHTML = `
-                    <h2 style="color:#4dff4d">Success!</h2>
-                    <div style="background:#222; padding:15px; border:1px dashed #4dff4d; font-family:monospace; margin:20px 0;">${data.key}</div>
-                    <p style="font-size:0.8em; color:#888;">Key expires in 5 minutes.</p>
+                    <h2 style="color:#4dff4d">Access Granted</h2>
+                    <p>Copy your key below:</p>
+                    <div class="key-display">${data.key}</div>
+                    <button class="btn" onclick="navigator.clipboard.writeText('${data.key}').then(()=>alert('Copied!'))">COPY KEY</button>
+                    <p style="font-size:0.7em; color:#666; margin-top:15px;">Key expires in 5 minutes.</p>
                 `;
             } catch (e) {
-                showError("ERROR", "Key server is offline.");
+                showError("CONNECTION ERROR", "Could not reach the key server. Please try again later.");
             }
         }
 
@@ -82,7 +93,7 @@
             document.getElementById('app').innerHTML = `
                 <h2 style="color:#ff4d4d">${title}</h2>
                 <p>${msg}</p>
-                <a href="${LINKS[0]}" class="btn">RETURN TO START</a>
+                <button onclick="window.location.href='${LINKS[0]}'" class="btn">RETURN TO START</button>
             `;
             localStorage.removeItem('f0s_chain');
         }
