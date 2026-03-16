@@ -22,13 +22,12 @@
         const params = new URLSearchParams(window.location.search);
         const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyoiSho1KC2MTfpL7m5G1XuRrA0QBEdRPKSrMOOS5nyfwQTYrec3MiSkX6X6AHn_eeHQg/exec";
         
-        // KONFIGURACIJA LANCA (Stavi svoje prave linkove ovdje)
         const LINKS = [
-            "https://link-center.net/link1", // Ovo je tvoj pravi 1. Linkvertise
-            "https://link-center.net/link2", // 2. Linkvertise
-            "https://link-center.net/link3", // 3. Linkvertise
-            "https://link-center.net/link4", // 4. Linkvertise
-            "https://link-center.net/link5"  // 5. Linkvertise (vodi na Stormy)
+            "https://link-center.net/4139494/fSNAbamKOf1O",
+            "https://link-target.net/4139494/8adN42HImTDH",
+            "https://direct-link.net/4139494/oecbLN5nrwMk",
+            "https://link-hub.net/4139494/blMest1Q099l",
+            "https://direct-link.net/4139494/ADulfAxLDpvb"
         ];
 
         const STEPS = ["Sunny", "Cloudy", "Rainy", "Snowy", "Stormy"];
@@ -37,35 +36,27 @@
             const now = Date.now();
             const weather = params.get('Weather');
             
-            // 1. Čišćenje URL-a odmah (User ne vidi parametre)
             if (window.location.search) {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
-            // 2. Dohvaćanje trenutnog progresa
             let progress = JSON.parse(localStorage.getItem('f0s_chain') || '{"step": 0, "time": 0}');
 
-            // 3. Reset ako je prošlo više od 10 minuta
             if (now - progress.time > 600000) progress = {step: 0, time: 0};
 
-            // 4. Provjera ključne riječi
             const currentRequired = STEPS[progress.step];
 
             if (weather === currentRequired) {
-                // KORAK JE ISPRAVAN
                 const nextStep = progress.step + 1;
                 localStorage.setItem('f0s_chain', JSON.stringify({step: nextStep, time: now}));
 
                 if (nextStep < STEPS.length) {
-                    // Šalji na idući Linkvertise u lancu
                     document.getElementById('msg').innerText = `Step ${nextStep} Verified. Loading next...`;
                     setTimeout(() => window.location.replace(LINKS[nextStep]), 1000);
                 } else {
-                    // SVIH 5 GOTOVO -> Generiraj ključ
                     generateFinalKey();
                 }
             } else {
-                // DETEKTIRAN BYPASS (Npr. user je preskočio step ili došao direktno)
                 showError("BYPASS DETECTED", "You skipped a step or the session expired.");
             }
         }
@@ -75,7 +66,7 @@
             try {
                 const res = await fetch(GOOGLE_URL + "?type=generate");
                 const data = await res.json();
-                localStorage.removeItem('f0s_chain'); // Čišćenje nakon uspjeha
+                localStorage.removeItem('f0s_chain');
                 
                 document.getElementById('app').innerHTML = `
                     <h2 style="color:#4dff4d">Success!</h2>
@@ -93,7 +84,7 @@
                 <p>${msg}</p>
                 <a href="${LINKS[0]}" class="btn">RETURN TO START</a>
             `;
-            localStorage.removeItem('f0s_chain'); // Reset progres pri grešci
+            localStorage.removeItem('f0s_chain');
         }
 
         init();
