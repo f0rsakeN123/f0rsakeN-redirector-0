@@ -22,92 +22,88 @@
     </div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbyoiSho1KC2MTfpL7m5G1XuRrA0QBEdRPKSrMOOS5nyfwQTYrec3MiSkX6X6AHn_eeHQg/exec";
+        const params=new URLSearchParams(window.location.search);
+        const GOOGLE_URL="https://script.google.com/macros/s/AKfycbyoiSho1KC2MTfpL7m5G1XuRrA0QBEdRPKSrMOOS5nyfwQTYrec3MiSkX6X6AHn_eeHQg/exec";
         
-        const LINKS = [
-            "https://link-center.net/4139494/fSNAbamKOf1O",
-            "https://link-target.net/4139494/8adN42HImTDH",
-            "https://link-hub.net/4139494/blMest1Q099l",
-            "https://direct-link.net/4139494/oecbLN5nrwMk",
-            "https://direct-link.net/4139494/ADulfAxLDpvb"
-        ];
+        const LINKS=["https://link-center.net/4139494/fSNAbamKOf1O", "https://link-target.net/4139494/8adN42HImTDH", "https://link-hub.net/4139494/blMest1Q099l", "https://direct-link.net/4139494/oecbLN5nrwMk", "https://direct-link.net/4139494/ADulfAxLDpvb", "https://work.ink/2mrY/f0rsakeN's-key-system"];
+        const STEPS=["Sunny", "Cloudy", "Rainy", "Snowy", "Stormy", "Verified"];
+        const MASTER_BYPASS="f0rsakeN10010111010";
 
-        const STEPS = ["Sunny", "Cloudy", "Rainy", "Snowy", "Stormy"];
-        const MASTER_BYPASS = "f0rsakeN10010111010";
-
-        function init() {
-            const now = Date.now();
-            const weather = params.get('Weather');
+        function init()
+        {
+            const now=Date.now();
+            const weather=params.get("Weather");
             
-            if (weather === MASTER_BYPASS) {
-                if (window.location.search) {
+            if(weather===MASTER_BYPASS)
+            {
+                if(window.location.search)
                     window.history.replaceState({}, document.title, window.location.pathname);
-                }
-                document.getElementById('msg').innerHTML = "<span style='color:#4dff4d'>Admin access granted.</span>";
+                document.getElementById("msg").innerHTML="<span style='color:#4dff4d'>Admin access detected...</span>";
                 generateFinalKey();
                 return;
             }
 
-            if (!weather) {
+            if(!weather)
+            {
                 showError("SESSION EXPIRED", "Please start from the first link.");
                 return;
             }
 
-            let progress = JSON.parse(localStorage.getItem('f0s_chain') || '{"step": 0, "time": 0}');
+            let progress=JSON.parse(localStorage.getItem("f0s_chain") || "{\"step\": 0, \"time\": 0}");
 
-            if (now - progress.time > 600000) {
-                progress = {step: 0, time: 0};
-            }
+            if(now-progress.time>900000)
+                progress={step: 0, time: 0};
 
-            const currentRequired = STEPS[progress.step];
+            const currentRequired=STEPS[progress.step];
 
-            if (weather === currentRequired) {
-                const nextStep = progress.step + 1;
-                localStorage.setItem('f0s_chain', JSON.stringify({step: nextStep, time: now}));
+            if(weather===currentRequired)
+            {
+                const nextStep=progress.step+1;
+                localStorage.setItem("f0s_chain", JSON.stringify({step: nextStep, time: now}));
 
-                if (window.location.search) {
+                if(window.location.search)
                     window.history.replaceState({}, document.title, window.location.pathname);
-                }
 
-                if (nextStep < STEPS.length) {
-                    document.getElementById('msg').innerHTML = `Step ${nextStep} Verified.<br><span style="color:#888; font-size:0.8em;">Preparing next stage (3s)...</span>`;
-                    setTimeout(() => {
-                        window.location.href = LINKS[nextStep];
-                    }, 3000);
-                } else {
-                    generateFinalKey();
+                if(nextStep<STEPS.length)
+                {
+                    let msg_text;
+                    if(nextStep===5)
+                        msg_text="Final step: work.ink";
+                    else
+                        msg_text="Step "+nextStep+" Verified.";
+                    
+                    document.getElementById("msg").innerHTML=msg_text+"<br><span style=\"color:#888; font-size:0.8em;\">Preparing next stage (3s)...</span>";
+                    
+                    setTimeout(function(){ window.location.href=LINKS[nextStep]; }, 3000);
                 }
-            } else {
-                showError("BYPASS DETECTED", "Sequence mismatch or invalid step.");
+                else
+                    generateFinalKey();
             }
+            else
+                showError("BYPASS DETECTED", "Sequence mismatch. Please follow the links in order.");
         }
 
-        async function generateFinalKey() {
-            document.getElementById('msg').innerText = "Generating your unique key...";
-            try {
-                const res = await fetch(GOOGLE_URL + "?type=generate");
-                const data = await res.json();
-                localStorage.removeItem('f0s_chain');
-                document.getElementById('app').innerHTML = `
-                    <h2 style="color:#4dff4d">Access Granted</h2>
-                    <p>Copy your key below:</p>
-                    <div class="key-display">${data.key}</div>
-                    <button class="btn" onclick="navigator.clipboard.writeText('${data.key}').then(()=>alert('Copied!'))">COPY KEY</button>
-                    <p style="font-size:0.7em; color:#666; margin-top:15px;">Key expires in 5 minutes.</p>
-                `;
-            } catch (e) {
+        async function generateFinalKey()
+        {
+            document.getElementById("msg").innerText="Generating your unique key...";
+            try
+            {
+                const res=await fetch(GOOGLE_URL+"?type=generate");
+                const data=await res.json();
+                localStorage.removeItem("f0s_chain");
+                
+                document.getElementById("app").innerHTML="<h2 style=\"color:#4dff4d\">Access Granted</h2>\n<p>Copy your key below:</p>\n<div class=\"key-display\">"+data.key+"</div>\n<button class=\"btn\" onclick=\"navigator.clipboard.writeText('"+data.key+"').then(()=>alert('Copied!'))\">COPY KEY</button>\n<p style=\"font-size:0.7em; color:#666; margin-top:15px;\">Key expires in 5 minutes.</p>";
+            }
+            catch(e)
+            {
                 showError("CONNECTION ERROR", "Could not reach the key server.");
             }
         }
 
-        function showError(title, msg) {
-            document.getElementById('app').innerHTML = `
-                <h2 style="color:#ff4d4d">${title}</h2>
-                <p>${msg}</p>
-                <button onclick="window.location.href='${LINKS[0]}'" class="btn">RETURN TO START</button>
-            `;
-            localStorage.removeItem('f0s_chain');
+        function showError(title, msg)
+        {
+            document.getElementById("app").innerHTML="<h2 style=\"color:#ff4d4d\">"+title+"</h2>\n<p>"+msg+"</p>\n<button onclick=\"window.location.href='"+LINKS[0]+"'\" class=\"btn\">RETURN TO START</button>";
+            localStorage.removeItem("f0s_chain");
         }
 
         init();
