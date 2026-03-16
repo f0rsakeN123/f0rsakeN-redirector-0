@@ -41,16 +41,17 @@
             const weather = params.get('Weather');
             
             if (weather === MASTER_BYPASS) {
-                document.getElementById('msg').innerHTML = "<span style='color:#4dff4d'>Admin access detected...</span>";
                 if (window.location.search) {
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
+                document.getElementById('msg').innerHTML = "<span style='color:#4dff4d'>Admin access granted.</span>";
                 generateFinalKey();
                 return;
             }
 
-            if (window.location.search) {
-                window.history.replaceState({}, document.title, window.location.pathname);
+            if (!weather) {
+                showError("SESSION EXPIRED", "Please start from the first link.");
+                return;
             }
 
             let progress = JSON.parse(localStorage.getItem('f0s_chain') || '{"step": 0, "time": 0}');
@@ -65,9 +66,12 @@
                 const nextStep = progress.step + 1;
                 localStorage.setItem('f0s_chain', JSON.stringify({step: nextStep, time: now}));
 
+                if (window.location.search) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
                 if (nextStep < STEPS.length) {
                     document.getElementById('msg').innerHTML = `Step ${nextStep} Verified.<br><span style="color:#888; font-size:0.8em;">Preparing next stage (3s)...</span>`;
-                    
                     setTimeout(() => {
                         window.location.href = LINKS[nextStep];
                     }, 3000);
@@ -75,7 +79,7 @@
                     generateFinalKey();
                 }
             } else {
-                showError("BYPASS DETECTED", "You skipped a step or your session expired.");
+                showError("BYPASS DETECTED", "Sequence mismatch or invalid step.");
             }
         }
 
@@ -84,9 +88,7 @@
             try {
                 const res = await fetch(GOOGLE_URL + "?type=generate");
                 const data = await res.json();
-                
                 localStorage.removeItem('f0s_chain');
-                
                 document.getElementById('app').innerHTML = `
                     <h2 style="color:#4dff4d">Access Granted</h2>
                     <p>Copy your key below:</p>
