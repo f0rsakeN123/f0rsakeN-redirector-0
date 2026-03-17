@@ -36,8 +36,7 @@
             
             if(weather===MASTER_BYPASS)
             {
-                if(window.location.search)
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                window.location.replace(window.location.pathname);
                 document.getElementById("msg").innerHTML="<span style='color:#4dff4d'>Admin access detected...</span>";
                 generateFinalKey();
                 return;
@@ -61,8 +60,7 @@
                 const nextStep=progress.step+1;
                 localStorage.setItem("f0s_chain", JSON.stringify({step: nextStep, time: now}));
 
-                if(window.location.search)
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                window.location.replace(window.location.pathname);
 
                 if(nextStep<STEPS.length)
                 {
