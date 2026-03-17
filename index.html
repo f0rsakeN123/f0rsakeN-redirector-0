@@ -44,14 +44,23 @@
 
             if(!weather)
             {
-                showError("SESSION EXPIRED", "Please start from the first link.");
+                if(!localStorage.getItem("f0s_chain"))
+                    showError("WELCOME", "Please follow the link-system to get your key.");
+                else
+                    showError("SESSION EXPIRED", "Your progress was lost or the link is invalid.");
                 return;
             }
 
             let progress=JSON.parse(localStorage.getItem("f0s_chain") || "{\"step\": 0, \"time\": 0}");
 
-            if(now-progress.time>900000)
-                progress={step: 0, time: 0};
+            if(weather===STEPS[0])
+                progress={step: 0, time: now};
+
+            if(now-progress.time>900000 && weather!==STEPS[0])
+            {
+                showError("TIMER EXPIRED", "You took too long (15 min limit). Restart from the first link.");
+                return;
+            }
 
             const currentRequired=STEPS[progress.step];
 
@@ -78,7 +87,9 @@
                     generateFinalKey();
             }
             else
+            {
                 showError("BYPASS DETECTED", "Sequence mismatch. Please follow the links in order.");
+            }
         }
 
         async function generateFinalKey()
