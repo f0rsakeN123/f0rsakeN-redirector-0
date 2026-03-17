@@ -42,23 +42,26 @@
                 return;
             }
 
-            if(!weather)
-            {
-                if(!localStorage.getItem("f0s_chain"))
-                    showError("WELCOME", "Please follow the link-system to get your key.");
-                else
-                    showError("SESSION EXPIRED", "Your progress was lost or the link is invalid.");
-                return;
-            }
-
             let progress=JSON.parse(localStorage.getItem("f0s_chain") || "{\"step\": 0, \"time\": 0}");
 
             if(weather===STEPS[0])
+            {
                 progress={step: 0, time: now};
+                localStorage.setItem("f0s_chain", JSON.stringify(progress));
+            }
+
+            if(!weather)
+            {
+                if(progress.step===0)
+                    showError("WELCOME", "Please follow the link-system to get your key.", false);
+                else
+                    showError("SESSION EXPIRED", "Your progress was lost or the link is invalid.", true);
+                return;
+            }
 
             if(now-progress.time>900000 && weather!==STEPS[0])
             {
-                showError("TIMER EXPIRED", "You took too long (15 min limit). Restart from the first link.");
+                showError("TIMER EXPIRED", "You took too long (15 min limit). Restart from the first link.", true);
                 return;
             }
 
@@ -87,9 +90,7 @@
                     generateFinalKey();
             }
             else
-            {
-                showError("BYPASS DETECTED", "Sequence mismatch. Please follow the links in order.");
-            }
+                showError("BYPASS DETECTED", "Sequence mismatch. Please follow the links in order.", true);
         }
 
         async function generateFinalKey()
@@ -105,14 +106,15 @@
             }
             catch(e)
             {
-                showError("CONNECTION ERROR", "Could not reach the key server.");
+                showError("CONNECTION ERROR", "Could not reach the key server.", false);
             }
         }
 
-        function showError(title, msg)
+        function showError(title, msg, clearData)
         {
             document.getElementById("app").innerHTML="<h2 style=\"color:#ff4d4d\">"+title+"</h2>\n<p>"+msg+"</p>\n<button onclick=\"window.location.href='"+LINKS[0]+"'\" class=\"btn\">RETURN TO START</button>";
-            localStorage.removeItem("f0s_chain");
+            if(clearData)
+                localStorage.removeItem("f0s_chain");
         }
 
         init();
