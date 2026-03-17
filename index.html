@@ -42,26 +42,32 @@
                 return;
             }
 
-            let progress=JSON.parse(localStorage.getItem("f0s_chain") || "{\"step\": 0, \"time\": 0}");
-
             if(weather===STEPS[0])
             {
-                progress={step: 0, time: now};
-                localStorage.setItem("f0s_chain", JSON.stringify(progress));
+                const freshStart={step: 1, time: now};
+                localStorage.setItem("f0s_chain", JSON.stringify(freshStart));
+                window.location.replace(window.location.pathname);
+                
+                document.getElementById("msg").innerHTML="Step 1 Verified.<br><span style=\"color:#888; font-size:0.8em;\">Preparing next stage (3s)...</span>";
+                setTimeout(function(){ window.location.href=LINKS[1]; }, 3000);
+                return;
             }
 
             if(!weather)
             {
-                if(progress.step===0)
+                let check=localStorage.getItem("f0s_chain");
+                if(!check)
                     showError("WELCOME", "Please follow the link-system to get your key.", false);
                 else
-                    showError("SESSION EXPIRED", "Your progress was lost or the link is invalid.", true);
+                    showError("SESSION EXPIRED", "No security token found. Please restart.", false);
                 return;
             }
 
-            if(now-progress.time>900000 && weather!==STEPS[0])
+            let progress=JSON.parse(localStorage.getItem("f0s_chain") || "{\"step\": 0, \"time\": 0}");
+
+            if(now-progress.time>900000)
             {
-                showError("TIMER EXPIRED", "You took too long (15 min limit). Restart from the first link.", true);
+                showError("TIMER EXPIRED", "Session lasted over 15 minutes. Please restart.", true);
                 return;
             }
 
