@@ -36,7 +36,7 @@
             
             if(weather===MASTER_BYPASS)
             {
-                window.location.replace(window.location.pathname);
+                window.history.replaceState(null, "", window.location.pathname);
                 document.getElementById("msg").innerHTML="<span style='color:#4dff4d'>Admin access detected...</span>";
                 generateFinalKey();
                 return;
@@ -44,30 +44,33 @@
 
             if(weather===STEPS[0])
             {
-                const freshStart={step: 1, time: now};
-                localStorage.setItem("f0s_chain", JSON.stringify(freshStart));
+                localStorage.setItem("f0s_chain", JSON.stringify({step: 1, time: now}));
+                window.history.replaceState(null, "", window.location.pathname);
                 
                 document.getElementById("msg").innerHTML="Step 1 Verified.<br><span style=\"color:#888; font-size:0.8em;\">Preparing next stage (3s)...</span>";
-                setTimeout(function(){ window.location.href=LINKS[1]; }, 3000);
+                setTimeout(function(){ window.location.replace(LINKS[1]); }, 3000);
                 return;
             }
 
-            let progress=JSON.parse(localStorage.getItem("f0s_chain") || "{\"step\": 0, \"time\": 0}");
+            let progress_str=localStorage.getItem("f0s_chain");
+            let progress;
+            if(progress_str)
+                progress=JSON.parse(progress_str);
+            else
+                progress={step: 0, time: 0};
 
             if(!weather)
             {
-                if(progress.step > 0 && (now-progress.time < 900000))
-                {
-                    document.getElementById("msg").innerHTML="Validating stage " + progress.step + "...";
-                    return;
-                }
-                showError("WELCOME", "Please follow the link-system to get your key.", false);
+                if(progress.step===0)
+                    showError("WELCOME", "Please follow the link-system to get your key.", false);
+                else
+                    showError("SESSION EXPIRED", "Invalid link or missing parameters.", true);
                 return;
             }
 
-            if(now-progress.time>900000)
+            if(progress.step===0 || (now-progress.time>900000))
             {
-                showError("TIMER EXPIRED", "Session lasted over 15 minutes. Please restart.", true);
+                showError("TIMER EXPIRED", "Session timeout (15 min). Please restart.", true);
                 return;
             }
 
@@ -77,6 +80,7 @@
             {
                 const nextStep=progress.step+1;
                 localStorage.setItem("f0s_chain", JSON.stringify({step: nextStep, time: now}));
+                window.history.replaceState(null, "", window.location.pathname);
 
                 if(nextStep<STEPS.length)
                 {
@@ -87,8 +91,7 @@
                         msg_text="Step "+nextStep+" Verified.";
                     
                     document.getElementById("msg").innerHTML=msg_text+"<br><span style=\"color:#888; font-size:0.8em;\">Preparing next stage (3s)...</span>";
-                    
-                    setTimeout(function(){ window.location.href=LINKS[nextStep]; }, 3000);
+                    setTimeout(function(){ window.location.replace(LINKS[nextStep]); }, 3000);
                 }
                 else
                     generateFinalKey();
@@ -116,7 +119,7 @@
 
         function showError(title, msg, clearData)
         {
-            document.getElementById("app").innerHTML="<h2 style=\"color:#ff4d4d\">"+title+"</h2>\n<p>"+msg+"</p>\n<button onclick=\"window.location.href='"+LINKS[0]+"'\" class=\"btn\">RETURN TO START</button>";
+            document.getElementById("app").innerHTML="<h2 style=\"color:#ff4d4d\">"+title+"</h2>\n<p>"+msg+"</p>\n<button onclick=\"window.location.replace('"+LINKS[0]+"')\" class=\"btn\">RETURN TO START</button>";
             if(clearData)
                 localStorage.removeItem("f0s_chain");
         }
